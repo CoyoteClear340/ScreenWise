@@ -1,0 +1,136 @@
+{
+  "numeric_features": [
+    "age",
+    "screen_time_hours",
+    "work_screen_hours",
+    "leisure_screen_hours",
+    "sleep_hours",
+    "exercise_minutes_per_week",
+    "social_hours_per_week",
+    "leisure_screen_ratio"
+  ],
+  "categorical_features": [
+    "gender",
+    "occupation",
+    "work_mode"
+  ],
+  "categorical_values": {
+    "gender": [
+      "Female",
+      "Male",
+      "Non-binary/Other"
+    ],
+    "occupation": [
+      "Employed",
+      "Retired",
+      "Self-employed",
+      "Student",
+      "Unemployed"
+    ],
+    "work_mode": [
+      "Hybrid",
+      "In-person",
+      "Remote"
+    ]
+  },
+  "feature_ranges": {
+    "age": {
+      "min": 16.0,
+      "max": 60.0
+    },
+    "screen_time_hours": {
+      "min": 1.0,
+      "max": 19.17
+    },
+    "work_screen_hours": {
+      "min": 0.11,
+      "max": 12.04
+    },
+    "leisure_screen_hours": {
+      "min": 0.89,
+      "max": 13.35
+    },
+    "sleep_hours": {
+      "min": 4.64,
+      "max": 9.74
+    },
+    "exercise_minutes_per_week": {
+      "min": 0.0,
+      "max": 372.0
+    },
+    "social_hours_per_week": {
+      "min": 0.0,
+      "max": 23.9
+    },
+    "leisure_screen_ratio": {
+      "min": 0.23977272727272725,
+      "max": 0.9508196721311475
+    }
+  },
+  "output_feature_names": [
+    "num__age",
+    "num__screen_time_hours",
+    "num__work_screen_hours",
+    "num__leisure_screen_hours",
+    "num__sleep_hours",
+    "num__exercise_minutes_per_week",
+    "num__social_hours_per_week",
+    "num__leisure_screen_ratio",
+    "cat__gender_Female",
+    "cat__gender_Male",
+    "cat__gender_Non-binary/Other",
+    "cat__occupation_Employed",
+    "cat__occupation_Retired",
+    "cat__occupation_Self-employed",
+    "cat__occupation_Student",
+    "cat__occupation_Unemployed",
+    "cat__work_mode_Hybrid",
+    "cat__work_mode_In-person",
+    "cat__work_mode_Remote"
+  ],
+  "top_factors": [
+    {
+      "feature": "sleep_hours",
+      "importance": 0.11735804487278882
+    },
+    {
+      "feature": "occupation_Student",
+      "importance": 0.08937155893570474
+    },
+    {
+      "feature": "screen_time_hours",
+      "importance": 0.08891062578952942
+    },
+    {
+      "feature": "occupation_Unemployed",
+      "importance": 0.0851510839345951
+    },
+    {
+      "feature": "occupation_Retired",
+      "importance": 0.07586057234717439
+    },
+    {
+      "feature": "work_screen_hours",
+      "importance": 0.06802063181025063
+    },
+    {
+      "feature": "gender_Non-binary/Other",
+      "importance": 0.06378428237999645
+    },
+    {
+      "feature": "gender_Female",
+      "importance": 0.056524572839533486
+    }
+  ],
+  "target_bin_edges": [
+    0.0,
+    6.6,
+    25.1,
+    97.0
+  ],
+  "leakage_columns_excluded": [
+    "productivity_0_100",
+    "sleep_quality_1_5",
+    "stress_level_0_10"
+  ]
+}
