@@ -1,8 +1,8 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 
 html,
 body,
@@ -48,4 +48,46 @@ input[type="range"]::-moz-range-thumb {
   cursor: pointer;
   border: 3px solid #ffffff;
   box-shadow: 0 0 0 1px #2f5f66;
+}
+
+/* Soft dotted texture behind hero/page sections for depth without noise */
+.bg-dot-grid {
+  background-image: radial-gradient(circle, rgba(47, 95, 102, 0.16) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.gradient-text {
+  background: linear-gradient(100deg, #2f5f66 0%, #3f7a56 45%, #b8873a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.animate-delay-1 {
+  animation-delay: 0.1s;
+}
+.animate-delay-2 {
+  animation-delay: 0.22s;
+}
+.animate-delay-3 {
+  animation-delay: 0.34s;
+}
+.animate-delay-4 {
+  animation-delay: 0.46s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

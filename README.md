@@ -28,8 +28,17 @@ web UI — turning a static dataset into an interactive, explainable prediction 
 - FastAPI backend serving real-time predictions from the actual trained model (no
   hardcoded outputs).
 - React + Vite + Tailwind frontend with a 3-step form, loading states, and a result
-  dashboard with feature-importance bars.
-- Model explainability (top contributing factors per prediction).
+  dashboard with an animated circular score gauge and feature-importance bars.
+- Three.js hero visual on the Home page: a floating phone mockup showing a live wellness
+  dashboard, orbited by sprite icons for the lifestyle signals the model actually uses
+  (sleep, exercise, heart/wellness, screen time). Lazy-loaded so its cost stays off every
+  other route, and falls back gracefully where WebGL is unavailable.
+- Model explainability (top contributing factors per prediction), paired with short,
+  threshold-based personalized tips generated client-side from the user's own submitted
+  values (e.g. low `sleep_hours` → a wind-down-routine suggestion).
+- Downloadable result card: exports the prediction (score, category, top factors + tips)
+  as a shareable PNG, rendered entirely client-side with the Canvas API — no server
+  round-trip, no login required.
 - Automated tests for the ML pipeline, the API, and the frontend.
 - No login, no Docker — runs natively with `pip install` / `npm install`.
 
@@ -155,7 +164,7 @@ ScreenTime CSV  →  ml/ pipeline (clean, engineer, train, tune, evaluate)
 
 - **ML:** Python, pandas, scikit-learn, matplotlib/seaborn (EDA)
 - **Backend:** FastAPI, Pydantic, uvicorn
-- **Frontend:** React 18, Vite, Tailwind CSS, React Router
+- **Frontend:** React 18, Vite, Tailwind CSS, React Router, Three.js (hero visual, lazy-loaded)
 - **Testing:** pytest, FastAPI `TestClient`, Vitest, React Testing Library
 
 ## 10. Project Structure
@@ -174,7 +183,12 @@ screenwise/
 │   └── predict.py        # inference wrapper used by the backend
 ├── artifacts/             # model.pkl, preprocessor.pkl, metrics/feature_info/metadata JSON
 ├── backend/app/           # FastAPI app (main, schemas, predictor, config)
-├── frontend/src/          # React app (components, services, styles)
+├── frontend/src/
+│   ├── components/         # Layout, Home, PredictionForm, ResultDashboard, icons
+│   │   └── three/           # WellnessScene.jsx — three.js hero visual (lazy-loaded)
+│   ├── utils/               # factorTips.js (per-factor tips), shareCard.js (PNG export)
+│   ├── services/            # api.js — fetch wrapper for the backend
+│   └── styles/
 └── tests/                 # pytest suite (preprocessing, prediction, API)
 ```
 
