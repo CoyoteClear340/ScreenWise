@@ -182,13 +182,15 @@ export default function PredictionForm() {
               onChange={handleChange}
               options={OCCUPATION_OPTIONS}
             />
-            <SelectField
-              label="Work Mode"
-              name="work_mode"
-              value={form.work_mode}
-              onChange={handleChange}
-              options={WORK_MODE_OPTIONS}
-            />
+            {form.occupation !== "Student" && (
+              <SelectField
+                label="Work Mode"
+                name="work_mode"
+                value={form.work_mode}
+                onChange={handleChange}
+                options={WORK_MODE_OPTIONS}
+              />
+            )}
           </Section>
         </div>
 

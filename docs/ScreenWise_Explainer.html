@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ScreenWise — EDA, ML &amp; Backend Explainer</title>
+<style>
+  :root{
+    --bg:#0f1720;
+    --panel:#ffffff;
+    --ink:#1b2733;
+    --muted:#5b6b7b;
+    --line:#e2e8ef;
+    --accent:#2f6f9a;
+    --accent-soft:#eaf3f9;
+    --code-bg:#0e1726;
+    --code-ink:#d7e3f2;
+    --warn:#b4530a;
+    --warn-bg:#fff5e8;
+    --ok:#1d7a4d;
+    --ok-bg:#e9f7ef;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.62;
+    font-size:16px;
+  }
+  .wrap{
+    max-width:1080px;
+    margin:32px auto;
+    background:var(--panel);
+    border-radius:14px;
+    padding:48px 56px 72px;
+    box-shadow:0 18px 60px rgba(0,0,0,.35);
+  }
+  header.top{
+    border-bottom:3px solid var(--accent);
+    padding-bottom:18px;
+    margin-bottom:8px;
+  }
+  h1{font-size:30px;margin:0 0 6px;letter-spacing:-.3px}
+  .sub{color:var(--muted);font-size:15px;margin:0}
+  h2{
+    font-size:23px;
+    margin:52px 0 14px;
+    padding-left:12px;
+    border-left:5px solid var(--accent);
+    letter-spacing:-.2px;
+  }
+  h3{font-size:18px;margin:30px 0 8px;color:var(--accent)}
+  h4{font-size:15.5px;margin:20px 0 6px}
+  p{margin:10px 0}
+  ul,ol{margin:10px 0 10px 22px;padding:0}
+  li{margin:5px 0}
+  code{
+    background:#eef3f8;
+    border:1px solid #dbe5ef;
+    border-radius:4px;
+    padding:1px 5px;
+    font-family:"Cascadia Mono",Consolas,"Courier New",monospace;
+    font-size:13.5px;
+    color:#22405c;
+  }
+  pre{
+    background:var(--code-bg);
+    color:var(--code-ink);
+    padding:16px 18px;
+    border-radius:10px;
+    overflow:auto;
+    font-family:"Cascadia Mono",Consolas,"Courier New",monospace;
+    font-size:13px;
+    line-height:1.55;
+    border:1px solid #1d2b3d;
+  }
+  pre code{background:none;border:none;color:inherit;padding:0;font-size:inherit}
+  table{
+    border-collapse:collapse;
+    width:100%;
+    margin:14px 0;
+    font-size:14.5px;
+  }
+  th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+  th{background:var(--accent-soft);color:#1d3b52;font-weight:600}
+  tr:nth-child(even) td{background:#fafcfe}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .card{
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:14px 16px;
+    background:#fbfdff;
+  }
+  .card h4{margin-top:0}
+  .note{
+    border-left:5px solid var(--accent);
+    background:var(--accent-soft);
+    padding:12px 16px;
+    border-radius:0 8px 8px 0;
+    margin:16px 0;
+  }
+  .warn{
+    border-left:5px solid var(--warn);
+    background:var(--warn-bg);
+    padding:12px 16px;
+    border-radius:0 8px 8px 0;
+    margin:16px 0;
+  }
+  .ok{
+    border-left:5px solid var(--ok);
+    background:var(--ok-bg);
+    padding:12px 16px;
+    border-radius:0 8px 8px 0;
+    margin:16px 0;
+  }
+  .flow{
+    background:#0e1726;
+    color:#cfe0f2;
+    border-radius:12px;
+    padding:20px 22px;
+    font-family:"Cascadia Mono",Consolas,monospace;
+    font-size:13px;
+    line-height:1.75;
+    overflow:auto;
+    white-space:pre;
+  }
+  .tag{
+    display:inline-block;
+    font-size:11.5px;
+    font-weight:600;
+    letter-spacing:.4px;
+    text-transform:uppercase;
+    padding:2px 8px;
+    border-radius:999px;
+    background:var(--accent);
+    color:#fff;
+    margin-right:6px;
+    vertical-align:middle;
+  }
+  .tag.grey{background:#7a8a99}
+  .tag.green{background:var(--ok)}
+  .tag.amber{background:#c47a1a}
+  .file{color:var(--accent);font-weight:600}
+  .small{font-size:13.5px;color:var(--muted)}
+  hr{border:none;border-top:1px solid var(--line);margin:40px 0}
+  .toc a{color:var(--accent);text-decoration:none}
+  .toc a:hover{text-decoration:underline}
+  .kbd{
+    font-family:Consolas,monospace;background:#0e1726;color:#d7e3f2;
+    padding:1px 6px;border-radius:4px;font-size:12.5px;
+  }
+  @media (max-width:820px){
+    .wrap{padding:26px 18px 48px;margin:10px}
+    .cols{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>ScreenWise — Data, ML &amp; Backend Explainer</h1>
+  <p class="sub">A walkthrough of the EDA notebook and the full machine-learning → API flow.
+  Backend only — the frontend is intentionally out of scope. This document is explanatory;
+  <strong>no project code was changed.</strong></p>
+</header>
+
+<div class="card toc">
+  <h4>Contents</h4>
+  <ol style="margin-bottom:0">
+    <li><a href="#overview">Big picture (how the pieces connect)</a></li>
+    <li><a href="#eda">Part 1 — <code>notebooks/EDA.ipynb</code>: why and what</a></li>
+    <li><a href="#ml">Part 2 — The ML pipeline (flow + models)</a></li>
+    <li><a href="#backend">Part 3 — The backend (FastAPI) flow</a></li>
+    <li><a href="#reference">Reference tables &amp; exact numbers</a></li>
+  </ol>
+</div>
+
+<h2 id="overview">1. Big picture — how the pieces connect</h2>
+
+<p>ScreenWise takes a CSV of 400 people's screen-time and lifestyle habits, turns it into a
+classifier that predicts a wellness category (<code>Low</code> / <code>Moderate</code> /
+<code>High</code>), and serves that classifier over HTTP. There are four layers, and each one
+only talks to the next through <em>files</em> or <em>JSON</em>:</p>
+
+<div class="flow">data/ScreenTime vs MentalWellness.csv   (400 rows, 15 real columns)
+                │
+                ▼
+  ml/preprocess.py   → load · clean · engineer features · build target labels
+                │
+                ▼
+  ml/features.py     → ColumnTransformer  (scale numbers, one-hot encode categories)
+                │
+                ▼
+  ml/train.py        → train/test split · 5-fold CV · GridSearchCV · pick best · evaluate
+                │        (uses ml/evaluate.py for metrics)
+                ▼
+  artifacts/         → model.pkl, preprocessor.pkl, metrics.json, feature_info.json, model_metadata.json
+                │
+                ▼
+  ml/predict.py      → WellnessPredictor: loads artifacts, predicts for one person
+                │
+                ▼
+  backend/app/       → FastAPI: /health · /model-info · /predict   (JSON over HTTP)</div>
+
+<div class="note">
+  <strong>The key idea:</strong> training and serving are deliberately separated.
+  <code>ml/train.py</code> writes everything it learned into <code>artifacts/</code>.
+  The backend never trains anything — it just loads those artifacts and calls them.
+  That is why you must run <code>python -m ml.train</code> before the backend has a model.
+</div>
+
+<h2 id="eda">2. Part 1 — <code>notebooks/EDA.ipynb</code>: why and what</h2>
+
+<h3>2.1 Why do EDA at all?</h3>
+<p>EDA (Exploratory Data Analysis) is the "look before you build" step. Before writing any
+model you need to answer questions the code cannot guess for you:</p>
+<ul>
+  <li><strong>Is the data clean?</strong> Missing values, duplicates, junk columns, impossible
+      values (a 40-hour screen day?).</li>
+  <li><strong>What does each column actually contain?</strong> Ranges, skew, category counts —
+      so validation rules later are realistic, not invented.</li>
+  <li><strong>Which relationships exist?</strong> Correlations tell you which features are
+      plausible predictors and warn you about redundancy.</li>
+  <li><strong>Is the target usable as-is?</strong> This is the single most important question in
+      this project — see section 2.4. It is what stops the model from "cheating".</li>
+</ul>
+
+<p>The notebook's own header says it plainly: it <em>inspects</em> the raw data and
+<em>documents cleaning decisions</em>. It deliberately does <strong>not</strong> build the
+deployed model — that job belongs to <code>ml/train.py</code>. So the notebook is a
+<em>justification document</em> for the choices the pipeline then makes in code.</p>
+
+<h3>2.2 Cell-by-cell walkthrough</h3>
+
+<table>
+<thead>
+<tr><th>Section</th><th>What it does</th><th>Why it matters</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td><strong>Setup</strong></td>
+  <td>Imports pandas/numpy/matplotlib/seaborn, reads the CSV, and drops any column whose name
+      starts with <code>Unnamed</code>.</td>
+  <td>The source CSV has a trailing empty column (<code>Unnamed: 15</code>) caused by a trailing
+      comma in the header. Dropping it is the first cleaning decision, and it is mirrored in
+      <code>ml/preprocess.py</code>.</td>
+</tr>
+<tr>
+  <td><strong>1. Dataset overview</strong></td>
+  <td><code>df.head()</code> and <code>df.info()</code>: 400 rows × 15 real columns, showing
+      types (8 float, 3 int, 4 object) and that every column is fully populated.</td>
+  <td>Confirms the shape and column types before anything else. The 4 object columns are the
+      categorical ones: <code>user_id</code>, <code>gender</code>, <code>occupation</code>,
+      <code>work_mode</code>.</td>
+</tr>
+<tr>
+  <td><strong>2. Missing values &amp; duplicates</strong></td>
+  <td>Counts nulls per column and duplicate rows.</td>
+  <td>Result: <strong>0 missing, 0 duplicates.</strong> That is why <code>clean_data()</code> has
+      no imputation logic — there is nothing to impute.</td>
+</tr>
+<tr>
+  <td><strong>3. Descriptive statistics</strong></td>
+  <td><code>describe(include='all')</code>: count, unique/top/freq for categories, and
+      mean/std/quartiles for numbers.</td>
+  <td>Gives the real value ranges. These numbers become the field limits in the API schema
+      (e.g. <code>age</code> 16–60, <code>sleep_hours</code> 4.64–9.74).</td>
+</tr>
+<tr>
+  <td><strong>4. Distributions</strong></td>
+  <td>A 4×3 grid of histograms + KDE curves for all numeric columns.</td>
+  <td>Shows shape. The important reveal: <code>mental_wellness_index_0_100</code> is heavily
+      <strong>right-skewed</strong> (mean ≈ 20, but max 97) — most people sit at the low end,
+      some at the very high end.</td>
+</tr>
+<tr>
+  <td><strong>5. Categorical counts</strong></td>
+  <td>Bar charts for <code>gender</code>, <code>occupation</code>, <code>work_mode</code>.</td>
+  <td>Confirms which categories exist, so the one-hot encoder and the API's allowed values match
+      reality.</td>
+</tr>
+<tr>
+  <td><strong>6. Correlation heatmap</strong></td>
+  <td>Correlation matrix of all numeric columns.</td>
+  <td>Reveals the target is tightly (negatively) tied to <code>stress_level_0_10</code> and
+      positively to <code>productivity_0_100</code> — the clue that leads to section 7.</td>
+</tr>
+<tr>
+  <td><strong>7. Verifying target construction</strong></td>
+  <td>Reconstructs <code>normalized_productivity + normalized_sleep_quality + inverse_normalized_stress</code>,
+      rescales to 0–100, and correlates it with the real index.</td>
+  <td><strong>The pivotal result:</strong> correlation ≈ <strong>0.9572</strong>. The shipped
+      column <em>is</em> that formula. This drives both target reuse and leakage prevention.</td>
+</tr>
+<tr>
+  <td><strong>8. Target category distribution</strong></td>
+  <td>Splits the index into 3 quantile (tercile) buckets and prints bin edges +
+      counts.</td>
+  <td>Bin edges <code>[0.0, 6.6, 25.1, 97.0]</code>, giving a near-perfect 3-way balance:
+      Low 134 / Moderate 133 / High 133. These edges are reused at prediction time.</td>
+</tr>
+<tr>
+  <td><strong>9. Screen time vs. wellness</strong></td>
+  <td>Scatter plots of each screen-time column against the wellness index, coloured by category.</td>
+  <td>Shows higher total/leisure screen time tending toward lower wellness — a correlation used
+      only for narrative, not proof of causation.</td>
+</tr>
+<tr>
+  <td><strong>10. Observations</strong></td>
+  <td>Written summary: correlation ≠ causation, small cross-sectional sample, no cleaning
+      beyond dropping the empty column and <code>user_id</code>.</td>
+  <td>Sets honest expectations for the model's accuracy (~60%), which the README's Limitations
+      section repeats.</td>
+</tr>
+</tbody>
+</table>
+
+<h3>2.3 The junk column and the id column (cleaning decisions)</h3>
+<div class="cols">
+  <div class="card">
+    <h4><code>Unnamed: 15</code></h4>
+    <p>An artefact of a trailing comma in the CSV header. It is entirely empty, not part of the
+    real schema. Both the notebook and <code>preprocess.load_raw_data()</code> drop any column
+    whose name starts with <code>Unnamed</code>.</p>
+  </div>
+  <div class="card">
+    <h4><code>user_id</code></h4>
+    <p>A unique identifier (<code>U0001</code>…<code>U0400</code>). It carries no signal about
+    wellness and could let a model memorise rows, so <code>clean_data()</code> drops it.</p>
+  </div>
+</div>
+
+<h3>2.4 Section 7 explained — the most important finding</h3>
+<p>The project brief suggested a wellness score built from three self-reported indicators:
+productivity, sleep quality, and (inverted) stress. The notebook tests that hypothesis
+instead of assuming it:</p>
+
+<pre><code>norm_prod   = productivity_0_100 / 100
+norm_sleepq = (sleep_quality_1_5 - 1) / (max - 1)
+inv_stress  = (10 - stress_level_0_10) / 10
+
+combo        = norm_prod + norm_sleepq + inv_stress
+combo_scaled = rescale combo to 0–100
+
+corr(combo_scaled, mental_wellness_index_0_100) ≈ 0.9572</code></pre>
+
+<p>A 0.96 correlation means the shipped <code>mental_wellness_index_0_100</code> column is
+essentially that formula already applied. Two consequences follow, and both are implemented in
+<code>ml/preprocess.py</code>:</p>
+
+<ol>
+  <li><strong>Reuse the column instead of re-deriving it.</strong> The exact index is better
+      than any approximation we could rebuild, so it becomes the target directly.</li>
+  <li><strong>Exclude its ingredients from the inputs — data leakage prevention.</strong>
+      <code>productivity_0_100</code>, <code>sleep_quality_1_5</code> and
+      <code>stress_level_0_10</code> are listed in <code>LEAKAGE_COLUMNS</code> and never used
+      as model features. If they were, the model could "predict" the target by basically
+      re-reading it — impressive accuracy, zero real value.</li>
+</ol>
+
+<div class="warn">
+  <strong>Why 0.96 and not 1.00?</strong> The index is heavily skewed and the reconstruction is
+  an approximation (different rounding/scale choices). A very strong but non-perfect match is
+  exactly what you expect if the column was derived from those indicators. Either way the
+  conclusion — reuse the column, exclude the ingredients — is the safe one.
+</div>
+
+<h3>2.5 Section 8 explained — why quantile buckets, not fixed ranges</h3>
+<p>A naive split of 0–100 into thirds (Low 0–33, Moderate 34–66, High 67–100) would fail here
+because the index is right-skewed: mean ≈ 20 and 75th percentile ≈ 31, so <strong>over 70% of
+rows would land in "Low"</strong> and "High" would be almost empty. A classifier trained on
+that is useless — it could score well by mostly predicting one class.</p>
+
+<p>Instead the notebook uses <code>pd.qcut(..., q=3)</code> — <em>terciles</em>, i.e. cut at the
+33rd and 66th percentiles computed on the actual data. That yields balanced classes and, as a
+bonus, the exact bin edges are needed later to turn a class back into a 0–100 score.</p>
+
+<div class="ok">
+  <strong>EDA output that the ML code literally consumes:</strong>
+  <ul style="margin-bottom:0">
+    <li>The leakage column list → <code>LEAKAGE_COLUMNS</code> in <code>preprocess.py</code>.</li>
+    <li>The tercile bin edges <code>[0.0, 6.6, 25.1, 97.0]</code> → saved to
+        <code>feature_info.json</code> → used in <code>predict.py</code> to compute the score.</li>
+    <li>Observed value ranges → the numeric limits in <code>backend/app/schemas.py</code>.</li>
+    <li>The three class names Low/Moderate/High → the labels everywhere.</li>
+  </ul>
+</div>
+
+<h2 id="ml">3. Part 2 — The ML pipeline</h2>
+<p>Five files, each with one job. Flow order: <code>preprocess → features → train → evaluate</code>,
+then <code>predict</code> at serving time.</p>
+
+<div class="flow">preprocess.py ──► features.py ──► train.py ──► evaluate.py
+     │                                            │
+     └─ data prep, target labels                  └─ metrics (accuracy, P/R/F1, confusion matrix)
+                                                   │
+                                                   ▼
+                                             artifacts/*.pkl, *.json
+                                                   │
+                                                   ▼
+                                             predict.py  (inference)</div>
+
+<h3>3.1 <span class="file">ml/preprocess.py</span> — getting the data ready</h3>
+<p>This file defines the "contract" of the dataset: which columns are features, which are
+leakage, and how the target is built.</p>
+
+<h4>Constants (the contract)</h4>
+<ul>
+  <li><code>NUMERIC_FEATURES</code> = age, screen_time_hours, work_screen_hours,
+      leisure_screen_hours, sleep_hours, exercise_minutes_per_week, social_hours_per_week,
+      leisure_screen_ratio (8, the last one derived).</li>
+  <li><code>CATEGORICAL_FEATURES</code> = gender, occupation, work_mode (3).</li>
+  <li><code>ALL_FEATURES</code> = 11 total inputs.</li>
+  <li><code>LEAKAGE_COLUMNS</code> = productivity_0_100, sleep_quality_1_5, stress_level_0_10 —
+      present in the CSV, excluded from inputs.</li>
+</ul>
+
+<h4>Functions</h4>
+<table>
+<thead><tr><th>Function</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td><code>load_raw_data()</code></td><td>Reads the CSV and drops <code>Unnamed*</code> columns.</td></tr>
+<tr><td><code>clean_data()</code></td><td>Drops duplicates and <code>user_id</code>, then applies
+    strict range filters (age 10–100, screen/sleep hours 0–24, sleep quality 1–5, stress 0–10,
+    productivity 0–100, non-negative exercise/social, index 0–100). Any out-of-range row is
+    <em>removed</em>, not repaired. Resets the index.</td></tr>
+<tr><td><code>engineer_features()</code></td><td>Adds one derived column:
+    <code>leisure_screen_ratio = leisure_screen_hours / screen_time_hours</code>
+    (0-division guarded with <code>replace(0, NaN)</code> then <code>fillna(0)</code>).
+    It deliberately uses only non-leakage inputs.</td></tr>
+<tr><td><code>construct_target()</code></td><td>Uses <code>mental_wellness_index_0_100</code> as
+    the score and calls <code>pd.qcut(q=3, labels=["Low","Moderate","High"])</code> to create the
+    <code>wellness_category</code> target. Returns the dataframe plus the <strong>bin edges</strong>
+    so they can be saved and reused at inference.</td></tr>
+<tr><td><code>load_and_prepare()</code></td><td>The one-line pipeline:
+    load → clean → engineer → construct target. Returns <code>(df, bin_edges)</code>.</td></tr>
+</tbody>
+</table>
+
+<div class="note">
+  The lengthy docstring in <code>construct_target()</code> is effectively a pointer back to
+  EDA section 7 and 8 — it records <em>why</em> the existing column is reused, <em>why</em> the
+  three indicators are excluded, and <em>why</em> fixed 0–33/34–66/67–100 thresholds were
+  rejected in favour of terciles.
+</div>
+
+<h3>3.2 <span class="file">ml/features.py</span> — turning inputs into model-ready numbers</h3>
+<p>A <code>ColumnTransformer</code> with two pipelines:</p>
+<ul>
+  <li><strong>Numeric</strong> (8 columns) → <code>StandardScaler</code> (mean 0, std 1). Scaling
+      matters a lot here because the model that won is a linear one —
+      <code>exercise_minutes_per_week</code> (up to 372) would otherwise dwarf
+      <code>leisure_screen_ratio</code> (0–1).</li>
+  <li><strong>Categorical</strong> (3 columns) → <code>OneHotEncoder(handle_unknown="ignore")</code>,
+      producing one 0/1 column per category (3 + 5 + 3 = 11 columns).</li>
+</ul>
+<p>Result: <strong>8 scaled numbers + 11 one-hot flags = 19 model input columns.</strong> This
+exact list is saved as <code>output_feature_names</code> in <code>feature_info.json</code>.
+The preprocessor is <em>fit on the training split only</em>, so scaling statistics never leak
+from the test set.</p>
+
+<h3>3.3 <span class="file">ml/train.py</span> — comparing, tuning, choosing, saving</h3>
+
+<h4>Step 1 — split</h4>
+<p><code>train_test_split(test_size=0.2, random_state=42, stratify=y)</code>:
+320 rows train / 80 rows test, with the class balance preserved in both
+(<code>stratify</code>).</p>
+
+<h4>Step 2 — preprocess</h4>
+<p><code>build_preprocessor()</code> is fitted on <code>X_train</code>, then applied to both
+splits with <code>transform</code>. Vocabulary/scale come only from training data.</p>
+
+<h4>Step 3 — cross-validated comparison of four candidates</h4>
+<p><code>StratifiedKFold(n_splits=5)</code> on the training set, scored by accuracy:</p>
+<table>
+<thead><tr><th>Model</th><th>CV accuracy (mean)</th><th>Std</th></tr></thead>
+<tbody>
+<tr><td><strong>LogisticRegression</strong></td><td><strong>0.6469</strong></td><td>0.0470</td></tr>
+<tr><td>RandomForest</td><td>0.6313</td><td>0.0590</td></tr>
+<tr><td>GradientBoosting</td><td>0.6125</td><td>0.0695</td></tr>
+<tr><td>DecisionTree</td><td>0.5469</td><td>0.0797</td></tr>
+</tbody>
+</table>
+
+<h4>Step 4 — hyperparameter tuning</h4>
+<p><code>GridSearchCV</code> (5-fold, accuracy, <code>n_jobs=-1</code>) is run for:</p>
+<ul>
+  <li><strong>RandomForest</strong> over <code>n_estimators [100,200,300]</code>,
+      <code>max_depth [None,5,10]</code>, <code>min_samples_split [2,5]</code>,
+      <code>min_samples_leaf [1,2]</code> → best = defaults at
+      <code>n_estimators=100, max_depth=None, min_samples_split=2, min_samples_leaf=1</code>,
+      CV 0.6313.</li>
+  <li><strong>GradientBoosting</strong> over <code>n_estimators [100,200]</code>,
+      <code>max_depth [2,3,4]</code>, <code>learning_rate [0.05,0.1]</code> → best =
+      <code>n_estimators=100, max_depth=3, learning_rate=0.05</code>, CV 0.6250.</li>
+</ul>
+<p>Tuning did <em>not</em> beat the untuned Logistic Regression — an honest, useful finding on a
+small dataset.</p>
+
+<h4>Step 5 — automatic selection</h4>
+<p>The script builds a candidate set of {tuned RandomForest, tuned GradientBoosting, untuned
+LogisticRegression, untuned DecisionTree} and picks the one with the highest CV accuracy with
+<code>max(candidates, key=...)</code>. Winner: <strong>LogisticRegression (0.6469)</strong>.</p>
+
+<div class="ok">
+  <strong>Why a "Logistic" model and not a "Linear" one?</strong> Logistic Regression is a
+  <em>linear classifier</em>, not linear regression. Linear regression predicts a continuous
+  number; Logistic Regression predicts the <strong>probability of class membership</strong>
+  (via the sigmoid function) and is trained for classification. Our target is a category
+  (Low/Moderate/High), so a classifier is the correct family. Under the hood it is still a
+  linear model in the scaled feature space, which is why it is simple, fast, and has low
+  variance — and why it survived on 400 noisy rows. It is also <em>multinomial</em> here
+  (three classes), and with <code>predict_proba</code> it gives the confidence shown in the UI.
+</div>
+
+<h4>Step 6 — final fit and one-time test evaluation</h4>
+<p>The winner is refit on all 320 training rows, then evaluated <strong>once</strong> on the
+held-out 80 test rows (never used for selection):</p>
+<table>
+<thead><tr><th>Metric</th><th>Train</th><th>Test (final)</th></tr></thead>
+<tbody>
+<tr><td>Accuracy</td><td>0.691</td><td>0.600</td></tr>
+<tr><td>Precision (weighted)</td><td>0.683</td><td>0.594</td></tr>
+<tr><td>Recall (weighted)</td><td>0.691</td><td>0.600</td></tr>
+<tr><td>F1 (weighted)</td><td>0.684</td><td>0.596</td></tr>
+</tbody>
+</table>
+<p>Train &gt; test is the expected small gap on a 400-row dataset. The confusion matrix
+(rows = actual, columns = predicted, labels <code>[High, Low, Moderate]</code>) on test:</p>
+<pre><code>[ [20,  2,  5],     # High: 20 correct, 2 → Low, 5 → Moderate
+  [ 3, 17,  7],     # Low:  17 correct, 3 → High, 7 → Moderate
+  [ 5, 10, 11] ]    # Moderate: 11 correct, 5 → High, 10 → Low</code></pre>
+<p>Read it plainly: "High" and "Low" are detected reasonably; "Moderate" is the hard one (only
+11 of 26 correct), which is typical when the middle class is genuinely a fuzzy boundary.</p>
+
+<h4>Step 7 — feature importance (explainability)</h4>
+<p>Tree models expose <code>feature_importances_</code>. Logistic Regression does not, so the
+code falls back to the <strong>mean absolute standardised coefficient</strong> across the three
+classes, normalised to sum to 1:</p>
+<pre><code>raw = np.abs(best_model.coef_).mean(axis=0)
+importances = raw / raw.sum()</code></pre>
+<p>This is what powers the "top factors" bars in the result screen. Feature names are cleaned
+by stripping the <code>num__</code> / <code>cat__</code> prefixes added by the
+<code>ColumnTransformer</code>.</p>
+
+<h4>Step 8 — save artifacts</h4>
+<table>
+<thead><tr><th>File</th><th>Contents</th><th>Who reads it</th></tr></thead>
+<tbody>
+<tr><td><code>artifacts/model.pkl</code></td><td>The fitted model (pickle)</td><td><code>ml/predict.py</code></td></tr>
+<tr><td><code>artifacts/preprocessor.pkl</code></td><td>The fitted ColumnTransformer (scaler + one-hot)</td><td><code>ml/predict.py</code></td></tr>
+<tr><td><code>artifacts/metrics.json</code></td><td>CV results, train &amp; test metrics, selected model</td><td>reporting / tests</td></tr>
+<tr><td><code>artifacts/feature_info.json</code></td><td>Feature lists, category values, ranges, top factors, bin edges, leakage list, output feature names</td><td><code>ml/predict.py</code></td></tr>
+<tr><td><code>artifacts/model_metadata.json</code></td><td>Model name, training date, dataset, features, test metrics, target-construction note</td><td>backend <code>/model-info</code></td></tr>
+</tbody>
+</table>
+
+<h3>3.4 <span class="file">ml/evaluate.py</span> — shared metrics</h3>
+<p>A single helper, <code>evaluate_predictions(y_true, y_pred)</code>, returning accuracy,
+weighted precision/recall/F1, the confusion matrix (plus its label order), and a full
+<code>classification_report</code> as a dict. It is used by <code>train.py</code> for the train
+and test evaluations and by the test suite, so metrics are computed the same way everywhere.</p>
+
+<h3>3.5 <span class="file">ml/predict.py</span> — the serving wrapper</h3>
+<p><code>WellnessPredictor</code> loads the four artifacts (model, preprocessor,
+<code>feature_info</code>, <code>metadata</code>) once, then for a single record:</p>
+<ol>
+  <li>Builds a one-row DataFrame and recomputes the derived feature
+      <code>leisure_screen_ratio</code> (inference must repeat training-time feature
+      engineering).</li>
+  <li>Orders columns exactly as <code>numeric_features + categorical_features</code> from
+      <code>feature_info.json</code> (column order matters).</li>
+  <li>Runs <code>preprocessor.transform</code> then <code>model.predict</code>.</li>
+  <li>If the model supports <code>predict_proba</code>, takes the probability of the predicted
+      class as <strong>confidence</strong>.</li>
+  <li>Converts the class back to a 0–100 score using the saved tercile bin edges, taking the
+      <strong>midpoint of the predicted band</strong>:
+      <pre><code>Low      → (0.0 + 6.6)  / 2 =  3.3
+Moderate → (6.6 + 25.1) / 2 = 15.85
+High     → (25.1 + 97.0)/ 2 = 61.05</code></pre></li>
+  <li>Attaches the top 5 stored factors for explainability.</li>
+</ol>
+<p>Returns <code>{prediction, score, confidence, top_factors}</code>.</p>
+
+<p>A module-level <code>get_predictor()</code> caches a singleton so artifacts are read from disk
+only once per process.</p>
+
+<div class="note small">
+  <strong>Minor observation (not a bug report, and not changed):</strong> the
+  <code>leisure_screen_ratio</code> guard differs slightly between the two files —
+  training divides by <code>NaN</code>-then-zero-fills when total screen time is 0, while
+  inference divides by 1. It only matters for a zero-screen-time row, which the real dataset
+  never contains, so predictions are unaffected in practice. Likewise the README says the ratio
+  is "clipped to [0,1]"; the code does not actually clip it.
+</div>
+
+<h2 id="backend">4. Part 3 — The backend (FastAPI)</h2>
+<p>Four small files in <code>backend/app/</code>. There is no ML logic here at all — the backend
+is a thin, validated HTTP shell around <code>ml/predict.py</code>.</p>
+
+<h3>4.1 <span class="file">config.py</span> — the only configuration</h3>
+<ul>
+  <li>Resolves <code>BACKEND_DIR</code>, <code>PROJECT_ROOT</code> and <code>ARTIFACTS_DIR</code>
+      by path arithmetic, so no hard-coded absolute paths.</li>
+  <li><code>ALLOWED_ORIGINS</code> = the two local Vite dev URLs
+      (<code>localhost:5173</code> and <code>127.0.0.1:5173</code>) for CORS.</li>
+  <li><code>API_TITLE</code> = "ScreenWise API", <code>API_VERSION</code> = "1.0.0".</li>
+</ul>
+
+<h3>4.2 <span class="file">schemas.py</span> — the request/response contract</h3>
+<p>Pydantic models. This is where <strong>input validation</strong> lives, and it is why bad
+requests never reach the model.</p>
+
+<h4><code>PredictionRequest</code> — 10 fields</h4>
+<table>
+<thead><tr><th>Field</th><th>Type / rule</th></tr></thead>
+<tbody>
+<tr><td>age</td><td>int, 10–100</td></tr>
+<tr><td>gender</td><td>one of Female, Male, Non-binary/Other</td></tr>
+<tr><td>occupation</td><td>one of Employed, Retired, Self-employed, Student, Unemployed</td></tr>
+<tr><td>work_mode</td><td>one of Hybrid, In-person, Remote</td></tr>
+<tr><td>screen_time_hours</td><td>float, 0–24</td></tr>
+<tr><td>work_screen_hours</td><td>float, 0–24</td></tr>
+<tr><td>leisure_screen_hours</td><td>float, 0–24</td></tr>
+<tr><td>sleep_hours</td><td>float, 0–24</td></tr>
+<tr><td>exercise_minutes_per_week</td><td>float, 0–1000 (range widened beyond the dataset's max of 372)</td></tr>
+<tr><td>social_hours_per_week</td><td>float, 0–168 (hours in a week)</td></tr>
+</tbody>
+</table>
+<p>Note there is <strong>no <code>leisure_screen_ratio</code> field</strong> — the client never
+sends it; <code>predict.py</code> derives it internally. The allowed categories are exactly the
+ones recorded in <code>feature_info.json</code>, and an example payload is embedded for the
+auto-generated Swagger docs.</p>
+
+<h4>Other models</h4>
+<ul>
+  <li><code>TopFactor</code> — <code>{feature, importance}</code>.</li>
+  <li><code>PredictionResponse</code> — <code>{prediction: Low|Moderate|High, score: float,
+      confidence: float|None, top_factors: list[TopFactor]}</code>.</li>
+  <li><code>HealthResponse</code> — <code>{status, model_loaded}</code>.</li>
+  <li><code>ModelInfoResponse</code> — mirror of <code>model_metadata.json</code>: model_name,
+      training_date, dataset, random_state, features, metrics, target_construction.</li>
+</ul>
+
+<h3>4.3 <span class="file">predictor.py</span> — the bridge to the ML layer</h3>
+<p>Because the backend lives in a subfolder, it must be able to import the <code>ml</code>
+package from the project root:</p>
+<pre><code>if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from ml.predict import WellnessPredictor</code></pre>
+<p>It then offers four thin functions around a module-level singleton:</p>
+<ul>
+  <li><code>load_predictor()</code> — creates the <code>WellnessPredictor</code> once and reuses it.</li>
+  <li><code>is_model_loaded()</code> — used by <code>/health</code>.</li>
+  <li><code>predict(request)</code> — converts the Pydantic request with
+      <code>request.model_dump()</code> into a plain dict and calls the ML predictor.</li>
+  <li><code>get_metadata()</code> — returns the loaded metadata dict for <code>/model-info</code>.</li>
+</ul>
+
+<h3>4.4 <span class="file">main.py</span> — the FastAPI application</h3>
+
+<h4>Startup (lifespan)</h4>
+<p>On app start, <code>predictor.load_predictor()</code> tries to load the artifacts. If it
+fails, the exception is logged but the app still starts — so <code>/health</code> can report
+<code>model_loaded: false</code> instead of the server refusing to boot.</p>
+
+<h4>CORS</h4>
+<p><code>CORSMiddleware</code> allows the two local frontend origins, credentials, all methods
+and all headers — that is what lets the browser on port 5173 call the API on port 8000.</p>
+
+<h4>Endpoints</h4>
+<table>
+<thead><tr><th>Method &amp; path</th><th>Handler</th><th>Behaviour</th></tr></thead>
+<tbody>
+<tr>
+  <td><code>GET /health</code></td>
+  <td><code>health()</code></td>
+  <td>Returns <code>{status:"ok", model_loaded: bool}</code>. Readiness probe.</td>
+</tr>
+<tr>
+  <td><code>GET /model-info</code></td>
+  <td><code>model_info()</code></td>
+  <td>Returns model metadata (name, date, features, test metrics, target-construction text).
+      If artifacts are missing → <strong>503</strong> with "Run <code>python -m ml.train</code>".</td>
+</tr>
+<tr>
+  <td><code>POST /predict</code></td>
+  <td><code>predict(request)</code></td>
+  <td>Validates the body, calls the predictor, returns
+      <code>{prediction, score, confidence, top_factors}</code>.</td>
+</tr>
+</tbody>
+</table>
+
+<h4>Error handling on <code>/predict</code></h4>
+<ul>
+  <li><strong>422</strong> — Pydantic rejects missing fields, out-of-range numbers, or unknown
+      categories, with a field-level error list. The model is never called.</li>
+  <li><strong>503</strong> — <code>FileNotFoundError</code>: artifacts not present (train first).</li>
+  <li><strong>500</strong> — any other exception: logged server-side, and the client only gets a
+      generic "Prediction failed due to an internal error." No stack traces leak to the client.</li>
+</ul>
+
+<h3>4.5 Full request lifecycle — what happens when someone submits the form</h3>
+<div class="flow">React form  ──POST /predict──►  main.py :: predict(request)
+                                             │
+                                             ├─ Pydantic validates 10 fields (ranges, enums)
+                                             │    └─ invalid → 422, stop
+                                             │
+                                             ├─ predictor.predict(request)
+                                             │     └─ request.model_dump() → plain dict
+                                             │
+                                             ▼
+                                    ml/predict.py :: WellnessPredictor.predict(record)
+                                             ├─ dict → one-row DataFrame
+                                             ├─ derive leisure_screen_ratio
+                                             ├─ order columns from feature_info.json
+                                             ├─ preprocessor.transform  (scale + one-hot → 19 cols)
+                                             ├─ model.predict            → "Low" | "Moderate" | "High"
+                                             ├─ model.predict_proba      → confidence (e.g. 0.56)
+                                             ├─ bin_edges lookup         → score (e.g. 3.3)
+                                             └─ top_factors (top 5) from feature_info.json
+                                             │
+                                             ▼
+                             {"prediction":"Low","score":3.3,"confidence":0.56,
+                              "top_factors":[ ... ]}
+                                             │
+                                             ▼
+                             PredictionResponse model → JSON to the browser</div>
+
+<div class="note">
+  Every response field traces back to a file in <code>artifacts/</code>:
+  <code>prediction</code> and <code>confidence</code> come from <code>model.pkl</code>;
+  <code>score</code> from <code>target_bin_edges</code> in <code>feature_info.json</code>;
+  <code>top_factors</code> from <code>top_factors</code> in <code>feature_info.json</code>;
+  <code>/model-info</code> from <code>model_metadata.json</code>. Nothing is hard-coded in the
+  backend.
+</div>
+
+<h3>4.6 Where is the model "visible"?</h3>
+<p>Three places, depending on what you mean by visible:</p>
+<ol>
+  <li><strong>As a serialized object:</strong> <code>artifacts/model.pkl</code> — the actual
+      trained Logistic Regression, plus <code>artifacts/preprocessor.pkl</code> for the
+      scaler/encoder. This is the model.</li>
+  <li><strong>As declared output:</strong> <code>artifacts/model_metadata.json</code> says
+      <code>"model_name": "LogisticRegression"</code>, and <code>artifacts/metrics.json</code>
+      says <code>"selected_model": "LogisticRegression"</code> — so you can confirm which model
+      won without unpickling anything.</li>
+  <li><strong>At runtime:</strong> every response to <code>/predict</code> is produced by that
+      pickled model — <code>ml/predict.py</code> never invents a result.</li>
+</ol>
+
+<h2 id="reference">5. Reference tables &amp; exact numbers</h2>
+
+<h3>5.1 File map (backend + ML only)</h3>
+<table>
+<thead><tr><th>Path</th><th>Layer</th><th>One-line role</th></tr></thead>
+<tbody>
+<tr><td><code>notebooks/EDA.ipynb</code></td><td>Analysis</td><td>Justifies cleaning + target decisions; finds the 0.96 correlation.</td></tr>
+<tr><td><code>ml/preprocess.py</code></td><td>ML</td><td>Load, clean, engineer features, build target labels.</td></tr>
+<tr><td><code>ml/features.py</code></td><td>ML</td><td>ColumnTransformer: StandardScaler + OneHotEncoder.</td></tr>
+<tr><td><code>ml/train.py</code></td><td>ML</td><td>Split, CV, GridSearchCV, select, evaluate, serialize.</td></tr>
+<tr><td><code>ml/evaluate.py</code></td><td>ML</td><td>Shared metric helper.</td></tr>
+<tr><td><code>ml/predict.py</code></td><td>ML</td><td>Load artifacts and predict one record.</td></tr>
+<tr><td><code>artifacts/*</code></td><td>Hand-off</td><td>Model, preprocessor, metrics, feature info, metadata.</td></tr>
+<tr><td><code>backend/app/config.py</code></td><td>API</td><td>Paths, CORS origins, title/version.</td></tr>
+<tr><td><code>backend/app/schemas.py</code></td><td>API</td><td>Pydantic request/response models + validation.</td></tr>
+<tr><td><code>backend/app/predictor.py</code></td><td>API</td><td>Bridge from FastAPI to <code>ml/predict.py</code>.</td></tr>
+<tr><td><code>backend/app/main.py</code></td><td>API</td><td>FastAPI app, lifespan, CORS, three routes.</td></tr>
+</tbody>
+</table>
+
+<h3>5.2 Dataset facts (from EDA)</h3>
+<table>
+<tbody>
+<tr><th>Rows</th><td>400</td></tr>
+<tr><th>Real columns</th><td>15 (plus one empty <code>Unnamed: 15</code> dropped on load)</td></tr>
+<tr><th>Missing values</th><td>0</td></tr>
+<tr><th>Duplicate rows</th><td>0</td></tr>
+<tr><th>Class balance</th><td>Low 134 · Moderate 133 · High 133 (terciles)</td></tr>
+<tr><th>Tercile bin edges</th><td><code>[0.0, 6.6, 25.1, 97.0]</code></td></tr>
+<tr><th>Index ← formula correlation</th><td>0.9572</td></tr>
+<tr><th>Excluded (leakage) columns</th><td>productivity_0_100, sleep_quality_1_5, stress_level_0_10</td></tr>
+</tbody>
+</table>
+
+<h3>5.3 Model &amp; metrics (from <code>artifacts/metrics.json</code>)</h3>
+<table>
+<tbody>
+<tr><th>Selected model</th><td><strong>LogisticRegression</strong> (multinomial, 3 classes, <code>max_iter=2000</code>, <code>random_state=42</code>)</td></tr>
+<tr><th>Selection rule</th><td>Highest 5-fold CV accuracy on the training set</td></tr>
+<tr><th>Split</th><td>320 train / 80 test, stratified, <code>random_state=42</code></td></tr>
+<tr><th>Test accuracy</th><td>0.600</td></tr>
+<tr><th>Test weighted F1</th><td>0.596</td></tr>
+<tr><th>Model input width</th><td>19 columns (8 scaled numeric + 11 one-hot flags)</td></tr>
+<tr><th>Top factors</th><td>sleep_hours, occupation_Student, screen_time_hours, occupation_Unemployed, occupation_Retired, work_screen_hours, gender_Non-binary/Other, gender_Female</td></tr>
+</tbody>
+</table>
+
+<h3>5.4 API quick reference</h3>
+<table>
+<thead><tr><th>Endpoint</th><th>Success</th><th>Failure modes</th></tr></thead>
+<tbody>
+<tr><td><code>GET /health</code></td><td>200 <code>{status, model_loaded}</code></td><td>—</td></tr>
+<tr><td><code>GET /model-info</code></td><td>200 metadata</td><td>503 if artifacts missing</td></tr>
+<tr><td><code>POST /predict</code></td><td>200 <code>{prediction, score, confidence, top_factors}</code></td><td>422 invalid input · 503 no artifacts · 500 internal</td></tr>
+</tbody>
+</table>
+
+<pre><code>POST /predict  — request
+{
+  "age": 24, "gender": "Female", "occupation": "Student", "work_mode": "Remote",
+  "screen_time_hours": 8.5, "work_screen_hours": 3.0, "leisure_screen_hours": 5.5,
+  "sleep_hours": 6.5, "exercise_minutes_per_week": 90, "social_hours_per_week": 6.0
+}
+
+200 OK  — response
+{
+  "prediction": "Low",
+  "score": 3.3,
+  "confidence": 0.56,
+  "top_factors": [
+    { "feature": "sleep_hours",        "importance": 0.117 },
+    { "feature": "occupation_Student", "importance": 0.089 },
+    { "feature": "screen_time_hours",  "importance": 0.089 }
+  ]
+}</code></pre>
+
+<hr />
+<p class="small"><strong>A note on what this is:</strong> ScreenWise is an educational AI/ML
+project. It predicts wellness <em>patterns</em> learned from a fixed 400-row dataset. It is not
+a medical or psychological diagnostic tool, and its ~60% test accuracy reflects the size and
+noise of the data, not clinical validity. Feature importance values are correlations in this
+sample, not causal claims.</p>
+<p class="small">This explainer documents the existing code only. No source files were modified.</p>
+
+</div>
+</body>
+</html>

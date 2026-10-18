@@ -1,6 +1,6 @@
 {
   "model_name": "LogisticRegression",
-  "training_date": "2026-09-07",
+  "training_date": "2026-10-14",
   "dataset": "ScreenTime vs MentalWellness.csv",
   "random_state": 42,
   "features": [

@@ -56,6 +56,23 @@ describe("PredictionForm", () => {
     expect(screen.getByText("Lifestyle")).toBeInTheDocument();
   });
 
+  it("hides Work Mode for students and shows it for other occupations", () => {
+    render(
+      <MemoryRouter>
+        <PredictionForm />
+      </MemoryRouter>
+    );
+
+    const occupation = screen.getByLabelText("Occupation");
+    expect(screen.queryByLabelText("Work Mode")).not.toBeInTheDocument();
+
+    fireEvent.change(occupation, { target: { value: "Employed" } });
+    expect(screen.getByLabelText("Work Mode")).toBeInTheDocument();
+
+    fireEvent.change(occupation, { target: { value: "Student" } });
+    expect(screen.queryByLabelText("Work Mode")).not.toBeInTheDocument();
+  });
+
   it("shows an API error message when the request fails", async () => {
     vi.spyOn(api, "predictWellness").mockRejectedValue(
       new api.ApiError("Prediction failed due to an internal error.", 500)
